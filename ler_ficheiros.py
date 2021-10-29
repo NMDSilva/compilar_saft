@@ -2,12 +2,14 @@ import os
 import xml.etree.ElementTree as ET
 from clientes import Cliente
 from produtos import Produto
+from tabela_iva import IVA
 
 class Read_xml():
     def __init__(self, pasta) -> None:
         self.pasta = pasta
         self.clientes = []
         self.produtos = []
+        self.tabela_iva = []
 
     @property
     def get_clientes(self):
@@ -16,6 +18,10 @@ class Read_xml():
     @property
     def get_produtos(self):
         return self.produtos
+
+    @property
+    def get_tabela_iva(self):
+        return self.tabela_iva
     
     def todos_ficheiros(self):
         return [os.path.join(self.pasta, arquivo) for arquivo in os.listdir(self.pasta) if arquivo.lower().endswith(".xml")]
@@ -83,6 +89,25 @@ class Read_xml():
                         self.check_none(produto.find("ProductType")),
                         self.check_none(produto.find("ProductDescription")),
                         self.check_none(produto.find("ProductNumberCode"))
+                    )
+                )
+
+    def iva_existe(self, idIVA):
+        for txIva in self.tabela_iva:
+            if txIva.code == idIVA:
+                return False
+        return True
+    
+    def carregar_produtos(self, root):
+        for regIVA in root.findall("./MasterFiles/TaxTable/TaxTableEntry"):
+            txIva = self.check_none(regIVA.find("TaxCode"))
+            if self.iva_existe(txIva):
+                self.tabela_iva.append(
+                    Produto(
+                        self.check_none(regIVA.find("ProductCode")),
+                        self.check_none(regIVA.find("ProductType")),
+                        self.check_none(regIVA.find("ProductDescription")),
+                        self.check_none(regIVA.find("ProductNumberCode"))
                     )
                 )
 
