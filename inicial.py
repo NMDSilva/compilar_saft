@@ -1,3 +1,4 @@
+import os
 from ler_ficheiros import Read_xml
 import csv
 
@@ -6,9 +7,10 @@ xml.iniciar()
 
 
 if __name__ == '__main__':
+    folder = "export"
     filename = 'clientes.csv'
     try:
-        with open(filename, 'w', newline='') as f:
+        with open(os.path.join(folder, filename), 'w', newline='') as f:
             writer = csv.writer(f, delimiter=';')
             writer.writerow(["ID", "NIF", "Nome", "Contacto", "Endereço", "Cidade", "Código Postal", "País"])
             for cliente in xml.get_clientes:
@@ -21,7 +23,7 @@ if __name__ == '__main__':
 
     filename = 'produtos.csv'
     try:
-        with open(filename, 'w', newline='') as f:
+        with open(os.path.join(folder, filename), 'w', newline='') as f:
             writer = csv.writer(f, delimiter=';')
             writer.writerow(["Código", "Tipo", "Descrição", "Número"])
             for produto in xml.get_produtos:
