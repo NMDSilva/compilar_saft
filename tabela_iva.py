@@ -1,9 +1,9 @@
 class IVA(object):
 
-    def __init__(self, tipo, pais, code, descricao, percentagem):
+    def __init__(self, tipo, pais, codigo, descricao, percentagem):
         self.__tipo = tipo
         self.__pais = pais
-        self.__code = code
+        self.__codigo = codigo
         self.__descricao = descricao
         self.__percentagem = percentagem
         self.__index = -1
@@ -17,8 +17,8 @@ class IVA(object):
         return self.__pais
 
     @property
-    def code(self):
-        return self.__code
+    def codigo(self):
+        return self.__codigo
     
     @property
     def descricao(self):

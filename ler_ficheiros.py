@@ -62,7 +62,7 @@ class Read_xml():
             if self.cliente_existe(idCliente):
                 self.clientes.append(
                     Cliente(
-                        self.check_none(cliente.find("CustomerID")),
+                        idCliente,
                         self.check_none(cliente.find("CustomerTaxID")),
                         self.check_none(cliente.find("CompanyName")),
                         self.check_none(cliente.find("Contact")),
@@ -85,7 +85,7 @@ class Read_xml():
             if self.produto_existe(idProduto):
                 self.produtos.append(
                     Produto(
-                        self.check_none(produto.find("ProductCode")),
+                        idProduto,
                         self.check_none(produto.find("ProductType")),
                         self.check_none(produto.find("ProductDescription")),
                         self.check_none(produto.find("ProductNumberCode"))
@@ -103,11 +103,12 @@ class Read_xml():
             txIva = self.check_none(regIVA.find("TaxCode"))
             if self.iva_existe(txIva):
                 self.tabela_iva.append(
-                    Produto(
-                        self.check_none(regIVA.find("ProductCode")),
-                        self.check_none(regIVA.find("ProductType")),
-                        self.check_none(regIVA.find("ProductDescription")),
-                        self.check_none(regIVA.find("ProductNumberCode"))
+                    IVA(
+                        self.check_none(regIVA.find("TaxType")),
+                        self.check_none(regIVA.find("TaxCountryRegion")),
+                        txIva,
+                        self.check_none(regIVA.find("Description")),
+                        self.check_none(regIVA.find("TaxPercentage"))
                     )
                 )
 
