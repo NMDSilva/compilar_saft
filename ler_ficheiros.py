@@ -1,15 +1,28 @@
+import sys
 import os
-import xml.etree.ElementTree as ET
-from clientes import Cliente
-from produtos import Produto
-from tabela_iva import IVA
+import datetime
+import xmltodict
+# import xml.etree.ElementTree as ET
+# sys.path.append('./class')
+
+# from enderecos import Endereco
+# from clientes import Cliente
+# from produtos import Produto
+# from ivas import IVA
+# from vendas import Venda
 
 class Read_xml():
     def __init__(self, pasta) -> None:
         self.pasta = pasta
+        self.header = {}
         self.clientes = []
         self.produtos = []
         self.tabela_iva = []
+        self.vendas = []
+
+    @property
+    def get_header(self):
+        return self.header
 
     @property
     def get_clientes(self):
@@ -30,8 +43,8 @@ class Read_xml():
         file = open(nomeFicheiro, mode="r", encoding="cp437")
         replacement = ""
         for line in file:
-            line = line.strip().replace("urn:OECD:StandardAuditFile-Tax:PT_1.04_01", "")
-            replacement = replacement + line + "\n"
+            line = line.strip()
+            replacement += line + "\n"
         file.close()
         newFile = open(nomeFicheiro, mode="w", encoding="cp437")
         newFile.write(replacement)
@@ -49,80 +62,89 @@ class Read_xml():
             return ""
         else:
             return self.substituir(texto.text.strip())
+
+    # def carregar_header(self, root):
+        
+
+    # def cliente_existe(self, idCliente):
+    #     for cliente in self.clientes:
+    #         if cliente.id == idCliente:
+    #             return False
+    #     return True
+
+    # def carregar_clientes(self, root):
+    #     for cliente in root.findall("./MasterFiles/Customer"):
+    #         idCliente = self.check_none(cliente.find("CustomerID"))
+    #         if self.cliente_existe(idCliente):
+    #             self.clientes.append(
+    #                 Cliente(
+    #                     idCliente,
+    #                     self.check_none(cliente.find("CustomerTaxID")),
+    #                     self.check_none(cliente.find("CompanyName")),
+    #                     self.check_none(cliente.find("Contact")),
+    #                     Endereco(
+    #                         self.check_none(cliente.find("BillingAddress/AddressDetail")),
+    #                         self.check_none(cliente.find("BillingAddress/City")),
+    #                         self.check_none(cliente.find("BillingAddress/PostalCode"))
+    #                     )
+    #                 )
+    #             )
+
+    # def produto_existe(self, idProduto):
+    #     for produto in self.produtos:
+    #         if produto.codigo == idProduto:
+    #             return False
+    #     return True
     
-    def cliente_existe(self, idCliente):
-        for cliente in self.clientes:
-            if cliente.id == idCliente:
-                return False
-        return True
+    # def carregar_produtos(self, root):
+    #     for produto in root.findall("./MasterFiles/Product"):
+    #         idProduto = self.check_none(produto.find("ProductCode"))
+    #         if self.produto_existe(idProduto):
+    #             self.produtos.append(
+    #                 Produto(
+    #                     idProduto,
+    #                     self.check_none(produto.find("ProductType")),
+    #                     self.check_none(produto.find("ProductDescription")),
+    #                     self.check_none(produto.find("ProductNumberCode"))
+    #                 )
+    #             )
+    # def iva_existe(self, tipo, pais, codigo, descricao, percentagem, data_fim):
+    #     for regIva in self.tabela_iva:
+    #         if regIva.tipo == tipo and regIva.pais == pais and regIva.codigo == codigo and regIva.descricao == descricao and regIva.percentagem == percentagem and regIva.data_fim == data_fim:
+    #             return False
+    #     return True
 
-    def carregar_clientes(self, root):
-        for cliente in root.findall("./MasterFiles/Customer"):
-            idCliente = self.check_none(cliente.find("CustomerID"))
-            if self.cliente_existe(idCliente):
-                self.clientes.append(
-                    Cliente(
-                        idCliente,
-                        self.check_none(cliente.find("CustomerTaxID")),
-                        self.check_none(cliente.find("CompanyName")),
-                        self.check_none(cliente.find("Contact")),
-                        self.check_none(cliente.find("BillingAddress/AddressDetail")),
-                        self.check_none(cliente.find("BillingAddress/City")),
-                        self.check_none(cliente.find("BillingAddress/PostalCode")),
-                        self.check_none(cliente.find("BillingAddress/Country"))
-                    )
-                )
+    # def carregar_tabela_iva(self, root):
+    #     for regIVA in root.findall("./MasterFiles/TaxTable/TaxTableEntry"):
+    #         tipo = self.check_none(regIVA.find("TaxType"))
+    #         pais = self.check_none(regIVA.find("TaxCountryRegion"))
+    #         codigo = self.check_none(regIVA.find("TaxCode"))
+    #         descricao = self.check_none(regIVA.find("Description"))
+    #         percentagem = self.check_none(regIVA.find("TaxPercentage"))
+    #         data_fim= self.check_none(regIVA.find("TaxExpirationDate"))
+    #         if self.iva_existe(tipo, pais, codigo, descricao, percentagem, data_fim):
+    #             self.tabela_iva.append(IVA(tipo, pais, codigo, descricao, percentagem, data_fim))
 
-    def produto_existe(self, idProduto):
-        for produto in self.produtos:
-            if produto.codigo == idProduto:
-                return False
-        return True
-    
-    def carregar_produtos(self, root):
-        for produto in root.findall("./MasterFiles/Product"):
-            idProduto = self.check_none(produto.find("ProductCode"))
-            if self.produto_existe(idProduto):
-                self.produtos.append(
-                    Produto(
-                        idProduto,
-                        self.check_none(produto.find("ProductType")),
-                        self.check_none(produto.find("ProductDescription")),
-                        self.check_none(produto.find("ProductNumberCode"))
-                    )
-                )
-
-    def iva_existe(self, idIVA):
-        for txIva in self.tabela_iva:
-            if txIva.code == idIVA:
-                return False
-        return True
-    
-    def carregar_produtos(self, root):
-        for regIVA in root.findall("./MasterFiles/TaxTable/TaxTableEntry"):
-            txIva = self.check_none(regIVA.find("TaxCode"))
-            if self.iva_existe(txIva):
-                self.tabela_iva.append(
-                    IVA(
-                        self.check_none(regIVA.find("TaxType")),
-                        self.check_none(regIVA.find("TaxCountryRegion")),
-                        txIva,
-                        self.check_none(regIVA.find("Description")),
-                        self.check_none(regIVA.find("TaxPercentage"))
-                    )
-                )
-
-    def carregar_dados(self, nomeFicheiro):
+    # def carregar_dados(self, nomeFicheiro):
+    #     file = open(nomeFicheiro, mode="r", encoding="cp437")
+    #     # root = ET.ElementTree(ET.fromstring(file.read())).getroot()
+    #     root = xmltodict.parse(file.read())
+    #     self.carregar_header(root)
+        # self.carregar_clientes(root)
+        # self.carregar_produtos(root)
+        # self.carregar_tabela_iva(root)
+    def normalizar_dados(self, nomeficheiro):
         file = open(nomeFicheiro, mode="r", encoding="cp437")
-        root = ET.ElementTree(ET.fromstring(file.read())).getroot()
-        self.carregar_clientes(root)
-        self.carregar_produtos(root)
+        root = xmltodict.parse(file.read())
+        root["AuditFile"]["Header"]["CompanyAddress"]["Region"] = self.check_none(root["AuditFile"]["Header"]["CompanyAddress"]["Region"])
 
+        
     def iniciar(self):
         ficheiros = self.todos_ficheiros()
         for ficheiro in ficheiros:
             self.remover_espacos_fim(ficheiro)
-            self.carregar_dados(ficheiro)
+            self.normalizar_dados(ficheiro)
+            # self.carregar_dados(ficheiro)
 
 
 
