@@ -67,12 +67,22 @@ class Compilar_SAFT():
         else:
             self.juntar_clientes(objXML["AuditFile"]["MasterFiles"]["Customer"])
             self.juntar_produtos(objXML["AuditFile"]["MasterFiles"]["Product"])
-            self.juntar_vendas(objXML["AuditFile"]["SourceDocuments"]["SalesInvoices"]["Invoice"])
-            self.juntar_movimentos(objXML["AuditFile"]["SourceDocuments"]["MovementOfGoods"]["StockMovement"])
+
+            if self.validar_existencia(objXML["AuditFile"]["SourceDocuments"], "SalesInvoices"):
+                if self.validar_existencia(objXML["AuditFile"]["SourceDocuments"]["SalesInvoices"], "Invoice"):
+                    self.juntar_vendas(objXML["AuditFile"]["SourceDocuments"]["SalesInvoices"]["Invoice"])
             
-            if self.validar_existencia(objXML["AuditFile"]["SourceDocuments"]["WorkingDocuments"], "WorkDocument"):
-                self.juntar_trabalhos(objXML["AuditFile"]["SourceDocuments"]["WorkingDocuments"]["WorkDocument"])
-            self.juntar_pagamentos(objXML["AuditFile"]["SourceDocuments"]["Payments"]["Payment"])
+            if self.validar_existencia(objXML["AuditFile"]["SourceDocuments"], "MovementOfGoods"):
+                if self.validar_existencia(objXML["AuditFile"]["SourceDocuments"]["MovementOfGoods"], "StockMovement"):
+                    self.juntar_movimentos(objXML["AuditFile"]["SourceDocuments"]["MovementOfGoods"]["StockMovement"])
+
+            if self.validar_existencia(objXML["AuditFile"]["SourceDocuments"], "WorkingDocuments"):
+                if self.validar_existencia(objXML["AuditFile"]["SourceDocuments"]["WorkingDocuments"], "WorkDocument"):
+                    self.juntar_trabalhos(objXML["AuditFile"]["SourceDocuments"]["WorkingDocuments"]["WorkDocument"])
+
+            if self.validar_existencia(objXML["AuditFile"]["SourceDocuments"], "Payments"):
+                if self.validar_existencia(objXML["AuditFile"]["SourceDocuments"]["Payments"], "Payment"):
+                    self.juntar_pagamentos(objXML["AuditFile"]["SourceDocuments"]["Payments"]["Payment"])
 
     def validar_existencia(self, obj, campo):
         try:
@@ -87,7 +97,7 @@ class Compilar_SAFT():
         ficheiro.close()
 
     def iniciar(self):
-        ficheiros = self.todos_ficheiros()
+        ficheiros = sorted(safts.todos_ficheiros(), reverse = True)
         for ficheiro in ficheiros:
             objXML = self.carregar_ficheiro(ficheiro)
             self.juntar_dados(objXML)
